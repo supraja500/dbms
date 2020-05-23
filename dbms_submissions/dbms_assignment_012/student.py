@@ -28,6 +28,7 @@ class Student:
 		   p=Student(k[0][1],k[0][2],k[0][3])
 		   p.student_id=k[0][0]
 		   return p
+		   
 	def delete(self):
 		sql_query='delete from Student where student_id={}'.format(self.student_id)
 		print(self.student_id)
@@ -41,8 +42,19 @@ class Student:
 			s=read_data(q)
 			self.student_id=s[0][0]
 		else:
-			sql_query="Update Student set name='{}',age={},score={} where student_id={}".format(self.name,self.age,self.score,self.value)
-			write_data(sql_query)
+		    sql_query='insert or replace into Student (student_id,name,age,score)values({},"{}",{},{})'.format(self.student_id,self.name,self.age,self.score)
+		    write_data(sql_query)
+			#sql_query="Update Student set name='{}',age={},score={} where student_id={}".format(self.name,self.age,self.score,self.value)
+
+		
+ 
+			
+		
+		
+			
+            
+			
+			
 			
         
 def write_data(sql_query):
@@ -64,8 +76,3 @@ def read_data(sql_query):
 	return ans
 
 
-s = Student.get(student_id=104)
-s.name = "Suresh"
-print(s.name,s.age,s.score,s.student_id)
-s.save()
-print(s.name,s.age,s.score,s.student_id)
