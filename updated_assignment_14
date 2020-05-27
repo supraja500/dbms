@@ -1,0 +1,115 @@
+class InvalidField(Exception):
+    pass
+
+class Student:
+    def __init__(self, name=None, age=0, score=0):
+        self.name = name
+        self.student_id = None
+        self.age = age
+        self.score = score
+        
+    @classmethod
+    def filter(cls,**kwargs):
+        cls.li=[]
+        k=[Student.__dict__.keys()]
+        for i,j in kwargs.items():
+            cls.f=i
+            cls.op=j
+            a=cls.f
+            a=a.split("__")
+            if a[0] not in k:
+                raise InvalidField 
+            
+            #if a[0]!='student_id' and a[0]!='name' and a[0]!='age' and a[0]!='score':
+                #raise InvalidField
+            if(len(a)>1):
+                if a[1]=="gt":
+                    sql_query='{}>{}'.format(a[0],cls.op)
+        
+
+             #print(p)
+
+                elif a[1]=="lt":
+                    sql_query='{}<{}'.format(a[0],cls.op)
+
+             #print(p)
+
+                elif a[1]=='lte':
+                    sql_query='{}<={}'.format(a[0],cls.op)
+
+
+                elif a[1]=='gte':
+                    sql_query='{}>={}'.format(a[0],cls.op)
+
+
+                elif a[1]=='neq':
+                    sql_query='{}<>"{}"'.format(a[0],cls.op)
+
+
+                elif a[1]=='in':
+                    sql_query='{} in {}'.format(a[0],tuple(cls.op))
+
+
+                elif a[1]=='contains':
+                    sql_query='{} like "%{}%"'.format(a[0],cls.op)
+            else:  
+                sql_query='{}="{}"'.format(a[0],cls.op)
+            
+            #return sql_query
+            cls.li.append(sql_query)
+        x=" and ".join(tuple(cls.li))
+        query=' '+x
+        return query
+        
+
+    @classmethod        
+    def aggregation(cls,ans,field,**kwargs):
+        if len(kwargs)!=0:
+            k=Student.filter(**kwargs)
+        if field==None:
+            query='select count(*) from Student'
+        
+        elif field!='name' and field!='age' and field!='score' and field!='student_id':
+            raise InvalidField
+        
+        elif len(kwargs)>=1:
+            query='select {}({}) from Student where {}'.format(ans,field,k)
+        else:
+            query='select {}({}) from Student'.format(ans,field)
+            
+        a=read_data(query)
+        return a[0][0]
+    
+    @classmethod
+    def avg(cls,field,**kwargs):
+        ans=Student.aggregation('avg',field,**kwargs)
+        return ans  
+    @classmethod
+    def max(cls,field,**kwargs):
+        ans=Student.aggregation('max',field,**kwargs)
+        return ans       
+            
+    @classmethod
+    def min(cls,field,**kwargs):
+        ans=Student.aggregation('min',field,**kwargs)
+        return ans 
+        
+    @classmethod
+    def sum(cls,field,**kwargs):
+        ans=Student.aggregation('sum',field,**kwargs)
+        return ans 
+        
+    @classmethod
+    def count(cls,field=None,**kwargs):
+        ans=Student.aggregation('count',field,**kwargs)
+        return ans      
+def read_data(sql_query):
+	import sqlite3
+	connection = sqlite3.connect("dbms/dbms_resources/students.sqlite3")
+	crsr = connection.cursor() 
+	crsr.execute(sql_query) 
+	ans= crsr.fetchall()  
+	connection.close() 
+	return ans
+	
+ 
